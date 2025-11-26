@@ -607,12 +607,12 @@ PrefabInstance:
     - target: {fileID: 6738172719093984759, guid: 27f9efbba3f01a840b3fabbde2c0d572,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.61
+      value: 2.31
       objectReference: {fileID: 0}
     - target: {fileID: 6738172719093984759, guid: 27f9efbba3f01a840b3fabbde2c0d572,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.6
+      value: 5.64
       objectReference: {fileID: 0}
     - target: {fileID: 6738172719093984759, guid: 27f9efbba3f01a840b3fabbde2c0d572,
         type: 3}
@@ -787,7 +787,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e8a26db72e566e45972d18ff13ce293, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerJump
+  moveSpeed: 5
+  lastInput: 0
   jumpForce: 7
+  extraJumpTime: 0.2
 --- !u!114 &6086897141858047462
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -801,6 +804,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
   moveSpeed: 5
+  lastInput: 0
 --- !u!114 &6086897141858047463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -832,12 +836,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e8541a85ed79f4449495406f3dd2b60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLedgeGrab
-  rayStartOffset: 0.27
-  ray1Height: 0.57
-  ray2Height: -0.53
-  rayLength: 0.48
-  grabOffset: {x: 0, y: 0, z: 0}
-  grabSpeed: 3
+  rayStartOffset: 0.09
+  ray1Height: 0.66
+  ray2Height: -0.19
+  rayLength: 0.62
+  climbableLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  grabOffset: {x: 1, y: 1, z: 0}
+  grabSpeed: 30
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

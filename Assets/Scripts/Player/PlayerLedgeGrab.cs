@@ -8,7 +8,7 @@ public class PlayerLedgeGrab : MonoBehaviour
     public float ray1Height = 1f;    // Upper ray: must NOT hit
     public float ray2Height = 0.5f;  // Lower ray: must hit
     public float rayLength = 0.6f;
-
+    public LayerMask climbableLayer;
     [Header("Climb Settings")]
     public Vector3 grabOffset;       // Where player ends up relative to start
     public float grabSpeed = 3f;
@@ -30,25 +30,33 @@ public class PlayerLedgeGrab : MonoBehaviour
 
     void CheckForLedge()
     {
-        float dir = GetDirectionInput(); // A = -1, D = +1
+        float dir = GetDirectionInput();
+        if (dir == 0) return;
+        if (!Input.GetKey(KeyCode.Space)) return;
 
-        if (dir == 0) return;                   // Not pressing left/right
-        if (!Input.GetKey(KeyCode.Space)) return; // Must be holding jump (grab)
+        Vector3 dirVec = dir > 0 ? Vector3.right : Vector3.left;
+        float start = dir > 0 ? rayStartOffset : -rayStartOffset;
 
-        Vector3 rayDirection = dir > 0 ? Vector3.right : Vector3.left;
-        float offsetStart = dir > 0 ? rayStartOffset : -rayStartOffset;
-
-        // Upper ray must NOT hit (space above the ledge)
-        if (Physics.Raycast(transform.position + new Vector3(offsetStart, ray1Height, 0),
-                            rayDirection, rayLength))
+        // UPPER RAY - must NOT hit
+        if (Physics.Raycast(transform.position + new Vector3(start, ray1Height, 0),
+                            dirVec, rayLength * 10, climbableLayer))
+        {
+            Debug.Log("No ledge - upper ray hit");
             return;
+        }
+           
 
-        // Lower ray MUST hit (detect the wall/ledge)
-        if (!Physics.Raycast(transform.position + new Vector3(offsetStart, ray2Height, 0),
-                             rayDirection, rayLength))
+        // LOWER RAY - MUST hit
+        if (!Physics.Raycast(transform.position + new Vector3(start, ray2Height, 0),
+                             dirVec, rayLength, climbableLayer))
+        {
+            Debug.Log("No ledge - lower ray missed");
             return;
+        }
+           
 
-        // Start climbing
+        Debug.Log("LEDGE DETECTED!");
+
         StartCoroutine(LedgeClimbRoutine(dir));
     }
 
@@ -56,32 +64,23 @@ public class PlayerLedgeGrab : MonoBehaviour
     {
         controlsEnabled = false;
 
-        // Stop movement clean (rigidbody 3D!)
         core.rb.linearVelocity = Vector3.zero;
+        core.rb.angularVelocity = Vector3.zero;
         core.rb.useGravity = false;
 
         Vector3 target = transform.position + new Vector3(grabOffset.x * dir, grabOffset.y, 0);
 
-        // Climb UP
-        while (transform.position.y < target.y)
+        while (Vector3.Distance(transform.position, target) > 0.05f)
         {
-            Vector3 newPos = transform.position + Vector3.up * grabSpeed * Time.deltaTime;
+            Vector3 newPos = Vector3.MoveTowards(transform.position, target, grabSpeed * Time.deltaTime);
             core.rb.MovePosition(newPos);
             yield return null;
         }
 
-        // Climb SIDEWAYS
-        while (Mathf.Abs(transform.position.x - target.x) > 0.05f)
-        {
-            Vector3 newPos = transform.position + Vector3.right * dir * grabSpeed * Time.deltaTime;
-            core.rb.MovePosition(newPos);
-            yield return null;
-        }
-
-        // Reset
         core.rb.useGravity = true;
         controlsEnabled = true;
     }
+
 
     private float GetDirectionInput()
     {
